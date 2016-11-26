@@ -1,0 +1,53 @@
+# -*- coding: utf-8 -*-
+from bs4 import BeautifulSoup
+import pandas as pd
+import numpy as np
+import sys
+import requests
+import time
+import re
+import datetime as datetime
+
+headers = {'User-agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.120 Safari/537.36'}
+tore = pd.Series()
+for i in list(range(1,6)):
+    url = "https://www.amazon.com/s/ref=sr_pg_"+str(i)+"?rh=n%3A3760911%2Ck%3Aysl&page="+str(i)+"&keywords=ysl&ie=UTF8&qid=1480142614&spIA=B01J74K7X4,B00RUMI94A,B001DJ817G"
+    html = requests.get(url,headers = headers)
+    #print(html.text)
+    
+    soup = BeautifulSoup(html.text, "lxml")
+    #divs = soup.find_all('div')[0].div #,{"class" : 'atfResults'}, {"class" : 'a-link-normal s-access-detail-page  a-text-normal'})
+    #print(divs)
+    lis = soup.find_all("a", {'class':'a-link-normal a-text-normal'})
+    #print(lis)
+    for li in lis:
+        #print(li)
+        #li = BeautifulSoup(li.text, "lxml")
+        temp = li.find('span',{'class':'sx-price-whole'})
+        temp1 = li.find('sup',{'class':'sx-price-fractional'})
+        #print(type(temp))
+        if temp is not None:
+            M1 = (temp.text)
+            if temp1 is not None:
+                M2 = (temp1.text)
+                price = (M1 + '.' + M2)
+                #print(li['href'])
+                prev_div = str(temp.find_parents("span")[0].find_parents("span")[0].find_parents("a")[0].find_parents("div")[0].find_parents("div")[0].previous_sibling)
+                #print(prev_div)
+                prev_div = BeautifulSoup(prev_div, "lxml")
+                #print(prev_div)
+                tempa = prev_div.find_all('a','a-link-normal s-access-detail-page a-text-normal')#,{'class':'a-link-normal s-access-detail-page  a-text-normal'})
+                tempa = str(tempa)
+                r = re.compile('title="(.*?)"')
+                m = r.search(tempa)
+                if m:
+                    name = (m.group(1))
+                    tore = tore.append(pd.Series(name, index = [price]))
+                else:
+                    print("No Name for this item")
+#print(tore)
+name = "/Users/sunjiaxuan/Documents/Py/AmazonPrice/" + "AmazonYSL" + str(datetime.datetime.now())[0:10] + ".csv"
+tore.to_csv(name)
+            #print(type(tempa))
+            #print(tempa.get('title'))
+            #break
