@@ -50,4 +50,4 @@ name = "/Users/sunjiaxuan/Documents/Py/AmazonPrice/" + "AmazonYSL" + str(datetim
 tore.to_csv(name)
             #print(type(tempa))
             #print(tempa.get('title'))
-            #break
+            #break 
