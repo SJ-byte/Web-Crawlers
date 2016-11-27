@@ -3,13 +3,14 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import numpy as np
 import sys
+import os
 import requests
 import time
 import re
 import datetime as datetime
 
 headers = {'User-agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.120 Safari/537.36'}
-tore = pd.Series()
+tore = pd.DataFrame()
 for i in list(range(1,6)):
     url = "https://www.amazon.com/s/ref=sr_pg_"+str(i)+"?rh=n%3A3760911%2Ck%3Aysl&page="+str(i)+"&keywords=ysl&ie=UTF8&qid=1480142614&spIA=B01J74K7X4,B00RUMI94A,B001DJ817G"
     html = requests.get(url,headers = headers)
@@ -34,6 +35,10 @@ for i in list(range(1,6)):
                 #print(li['href'])
                 prev_div = str(temp.find_parents("span")[0].find_parents("span")[0].find_parents("a")[0].find_parents("div")[0].find_parents("div")[0].previous_sibling)
                 #print(prev_div)
+                try:
+                    notes = (temp.find_parents("span")[0].find_parents("span")[0].find_parents("a")[0].find_parents("div")[0].find_parents("div")[0].next_sibling.string)
+                except:
+                    notes = ("No Notes")
                 prev_div = BeautifulSoup(prev_div, "lxml")
                 #print(prev_div)
                 tempa = prev_div.find_all('a','a-link-normal s-access-detail-page a-text-normal')#,{'class':'a-link-normal s-access-detail-page  a-text-normal'})
@@ -42,12 +47,14 @@ for i in list(range(1,6)):
                 m = r.search(tempa)
                 if m:
                     name = (m.group(1))
-                    tore = tore.append(pd.Series(name, index = [price]))
+                    tempSer = pd.DataFrame({"Name" : [name], "Notes" : [notes]},index = [price])
+                    tore = pd.concat([tore,tempSer])
+                    #print(tore)
                 else:
                     print("No Name for this item")
+                    
 #print(tore)
 name = "/Users/sunjiaxuan/Documents/Py/AmazonPrice/" + "AmazonYSL" + str(datetime.datetime.now())[0:10] + ".csv"
 tore.to_csv(name)
-            #print(type(tempa))
-            #print(tempa.get('title'))
-            #break 
+import AmazonResult
+#os.system('/Users/sunjiaxuan/Documents/Py/AmazonResult.py')
