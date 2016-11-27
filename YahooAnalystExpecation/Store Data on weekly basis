@@ -45,4 +45,3 @@ with open(name, 'wb') as myfile:
     wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
     for i in list(range(0,len(rec_with_value))):
         wr.writerow(rec_with_value[i])
-        
