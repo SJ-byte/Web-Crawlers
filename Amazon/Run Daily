@@ -1,1 +1,7 @@
-sched.add_job(import AmazonResult, trigger='interval', hours=24, end_date='2017-01-10 09:30')
+import schedule
+import time
+
+def job():
+    import AmazonResult
+
+schedule.every().day.at("18:28").do(job,'It is Time to Download')
