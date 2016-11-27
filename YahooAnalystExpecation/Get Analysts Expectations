@@ -46,8 +46,9 @@ for i in range(0,len(QS)):
         tds = tartr.find_all("td")
         tdsout = ''
         for td in tds:
-            tdsout = tdsout + td.text
-        wr.writerow(tdsout.encode('ascii', 'ignore').decode('ascii'))
+            if td.text:
+            #tdsout = tdsout + td.text 
+                wr.writerow(td.text.encode('ascii', 'ignore').decode('ascii'))
     ####For Last part
     tarth = bf.findAll('th', text = re.compile('Recommendation Trends'))
     tarthre = (tarth[0].find_parent("tr").find_parent("table").find_next_sibling("table"))
@@ -61,9 +62,13 @@ for i in range(0,len(QS)):
         tds = tartr.find_all("td")
         tdsout = ''
         for td in tds:
-            tdsout = tdsout + td.text
-        wr.writerow(tdsout.encode('ascii', 'ignore').decode('ascii'))
+            if td.text:
+            #tdsout = tdsout + td.text 
+                wr.writerow(td.text.encode('ascii', 'ignore').decode('ascii'))
 resultFile.close()
 with open("output.csv") as infile, open("outfile.csv", "w") as outfile:
     for line in infile:
         outfile.write(line.replace(",", ""))
+        
+import AnalyseYahooResult
+import YahooGetPrice
