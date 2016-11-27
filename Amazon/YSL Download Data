@@ -35,7 +35,7 @@ for i in list(range(1,6)):
                 #print(li['href'])
                 prev_div = str(temp.find_parents("span")[0].find_parents("span")[0].find_parents("a")[0].find_parents("div")[0].find_parents("div")[0].previous_sibling)
                 #print(prev_div)
-                try:
+                try: 
                     notes = (temp.find_parents("span")[0].find_parents("span")[0].find_parents("a")[0].find_parents("div")[0].find_parents("div")[0].next_sibling.string)
                 except:
                     notes = ("No Notes")
