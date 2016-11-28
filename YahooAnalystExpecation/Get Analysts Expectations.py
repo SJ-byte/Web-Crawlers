@@ -72,3 +72,4 @@ with open("output.csv") as infile, open("outfile.csv", "w") as outfile:
         
 import AnalyseYahooResult
 import YahooGetPrice
+import YahooStrategyMain
