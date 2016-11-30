@@ -3,85 +3,45 @@ import datetime as datetime
 import glob
 import pandas as pd
 import csv
-import numpy as np
 
-#print os.getcwd()
-os.chdir('/Users/sunjiaxuan/Documents/Py/YahooAnalysts')
-AllFiles = glob.glob("/Users/sunjiaxuan/Documents/Py/YahooAnalysts/*.csv")
+print os.getcwd()
+os.chdir('/Users/sunjiaxuan/Documents/Py/AmazonPrice')
+AllFiles = glob.glob("/Users/sunjiaxuan/Documents/Py/AmazonPrice/*.csv")
 
-
-#####Get All the dates we have for now
-AllDates = []
-###Here we readin all the files that we have downloaded in the history
-
-PriceFilesNames = []
-AllPriceResult = []
-
-AnalystFilesNames = []
-AllAnalystsResult =[]
-
+AllResult = []
 for files in AllFiles:
-    if 'Price' in files:
-        PriceFilesNames.append(files)
-        temp = pd.read_csv(files,header = None)
-        temp.columns = ['index','Price']
-        AllPriceResult.append(temp)
-        AllDates.append(files[-14:-4])
-    elif 'AnalystsRecScore' in files:
-        AnalystFilesNames.append(files)
-        temp = pd.read_csv(files,header = None)
-        temp.columns = ['index','BuyThisWeek','BuyPreWeek']   
-        #Delete all , and [] in temp.ix[:,0]
-        for i in list(range(0,len(temp.ix[:,0]))):
-            temp.ix[i,0] = ''.join(x for x in temp.ix[i,0] if x.isalpha())
+    print(files)
+    if 'AmazonYSL' in files:
+        AllResult.append(pd.read_csv(files,header = None))
+
+mapping = AllResult[0].ix[1:,1]
+
+Combined_R = pd.DataFrame()
+
+for i in list(range(0,len(AllResult))):
+    print(i)
+    if i == 0:
+        Combined_R = AllResult[0].iloc[1:]
+        Combined_R.columns = ['Price','Name']
+        Combined_R = pd.DataFrame(Combined_R['Price'].values,index = Combined_R['Name'].values) #list(range(0,len(mapping)))
+    else:
+        temp = AllResult[i]
+        temp = temp.iloc[1:] #No Header
+        temp.columns = ['Price','Name','Notes']
         temp = temp.ix[:,0:2]
-        AllAnalystsResult.append(temp)
-        
-############Combine the views we have now to a dataframe
-AllViews = pd.DataFrame()
-for i in list(range(0,len(AllAnalystsResult))):
-    if i == 0:
-        AllViews = AllAnalystsResult[i]
-    else:
-        AllViews = pd.merge(AllViews,AllAnalystsResult[i] ,on = 'index', how='outer')
+        temp = pd.DataFrame(temp['Price'].values,index = temp['Name'].values)
+        temp.columns = ['price' + str(i)]
+        #tempDF = pd.DataFrame(AllResult[i].ix[:,0].values,index = [AllResult[i].ix[:,1]])
+        #print(tempDF.iloc[0:3])
+        #Combined_R = Combined_R.join(temp, on = ['Name'], how='outer')
+        Combined_R = Combined_R.join(temp)
+        Combined_R = Combined_R.drop_duplicates()
+        print(Combined_R.shape)
 
-#Rename Analysts' view columns
-NewName = ['index']
-for date in AllDates:
-    NewName.append(date)
-AllViews.columns = NewName
 
-############Combine the prices we have now to a dataframe for later look up purpose
-AllPrices = pd.DataFrame()
-for i in list(range(0,len(AllPriceResult))):
-    if i == 0:
-        AllPrices = AllPriceResult[i]
-    else:
-        AllPrices = pd.merge(AllPrices,AllPriceResult[i] ,on = 'index', how='outer')
-
-#Rename Prices columns
-NewName = ['index']
-for date in AllDates:
-    NewName.append(date)
-AllPrices.columns = NewName
-
-#Store Today's Stock Selection
-for i in list(range(1,AllViews.shape[1])):
-    for j in list(range(0,len(AllViews.ix[:,-i].values))):
-        try: 
-            AllViews.ix[j,-i] = float(AllViews.ix[j,-i]) 
-        except: 
-            AllViews.ix[j,-i] = np.nan
-
-AllViews['change'] = AllViews.ix[:,-1] - AllViews.ix[:,-2]
-Re = AllViews.sort(['change'], ascending=True)
-Re = Re.dropna()
-
-ToBuy = Re.ix[Re.ix[:,-1]<0,:]
-ToSell = Re.ix[Re.ix[:,-1]>0,:]
-
-nameBuy = "/Users/sunjiaxuan/Documents/Py/YahooAnalysts/" + "ToBuy" + str(datetime.datetime.now())[0:10] + ".csv"
-nameSell = "/Users/sunjiaxuan/Documents/Py/YahooAnalysts/" + "ToSell" + str(datetime.datetime.now())[0:10] + ".csv"
-
-ToBuy.to_csv(nameBuy)
-ToSell.to_csv(nameSell)
+Combined_R['change'] = Combined_R.ix[:,-1] - Combined_R.ix[:,1]
+New_Low = Combined_R.ix[Combined_R['change']<0,:]
+New_Low = New_Low.sort_values(['change'])
+New_Low = New_Low.drop_duplicates()
+name = "/Users/sunjiaxuan/Documents/Py/AmazonPrice/" + "PriceChange" + str(datetime.datetime.now())[0:10] + ".csv"
+New_Low.to_csv(name)
