@@ -50,21 +50,35 @@ for i in list(range(0,len(BuyStocks))):
     PricePos = PriceDate.index(Date)
     tempPrice = []
     for stock in ToBuy:
-        tempPrice.append(float(AllPriceResult[PricePos].ix[:,1][AllPriceResult[PricePos].ix[:,0] == stock].tolist()[0]))
+        try:
+            tempPrice.append(float(AllPriceResult[PricePos].ix[:,1][AllPriceResult[PricePos].ix[:,0] == stock].tolist()[0]))
+        except:
+            tempPrice.append(np.nan)
     BuyPrice.append(tempPrice)
     NextDate = "{:%Y-%m-%d}".format(datetime.datetime.strptime(Date, '%Y-%m-%d') + datetime.timedelta(days=7))
     flag = 1
     try:
         PricePos = PriceDate.index(NextDate)
     except:
-        print("No Data Downloaded")
-        flag = 0
+        try:
+            NextDate = "{:%Y-%m-%d}".format(datetime.datetime.strptime(Date, '%Y-%m-%d') + datetime.timedelta(days=6))
+            PricePos = PriceDate.index(NextDate)
+        except:
+            try:
+                NextDate = "{:%Y-%m-%d}".format(datetime.datetime.strptime(Date, '%Y-%m-%d') + datetime.timedelta(days=8))
+                PricePos = PriceDate.index(NextDate)
+            except:
+                print("No Data Downloaded")
+                flag = 0
     if flag == 0:
         continue
     tempPrice = []
     allBuyStockPos.append(i)
     for stock in ToBuy:
-        tempPrice.append(float(AllPriceResult[PricePos].ix[:,1][AllPriceResult[PricePos].ix[:,0] == stock].tolist()[0]))
+        try:
+            tempPrice.append(float(AllPriceResult[PricePos].ix[:,1][AllPriceResult[PricePos].ix[:,0] == stock].tolist()[0]))
+        except:
+            tempPrice.append(np.nan)
     OneWeekPrice.append(tempPrice)
 
 NewBuy = map(BuyStocks.__getitem__, allBuyStockPos)
@@ -130,8 +144,16 @@ for i in list(range(0,len(Stocks))):
     try:
         PricePos = PriceDate.index(NextDate)
     except:
-        print("No Data Downloaded")
-        flag = 0
+        try:
+            NextDate = "{:%Y-%m-%d}".format(datetime.datetime.strptime(Date, '%Y-%m-%d') + datetime.timedelta(days=6))
+            PricePos = PriceDate.index(NextDate)
+        except:
+            try:
+                NextDate = "{:%Y-%m-%d}".format(datetime.datetime.strptime(Date, '%Y-%m-%d') + datetime.timedelta(days=8))
+                PricePos = PriceDate.index(NextDate)
+            except:
+                print("No Data Downloaded")
+                flag = 0
     if flag == 0:
         continue
     tempPrice = []
