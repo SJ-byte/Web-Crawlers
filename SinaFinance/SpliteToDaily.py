@@ -6,6 +6,9 @@ import csv
 import numpy as np
 import operator
 
+import GetUpgradeStocks
+import GetFirstRating
+
 #print os.getcwd()
 os.chdir('/Users/sunjiaxuan/Documents/Py/ASharesAnalystsView')
 AllFiles = glob.glob("/Users/sunjiaxuan/Documents/Py/ASharesAnalystsView/*.csv")
